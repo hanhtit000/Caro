@@ -7,13 +7,12 @@ using UnityEngine;
 using UnityEngine.Animations;
 using UnityEngine.UI;
 
-public class NewBehaviourScript : MonoBehaviour
+public class BoardGenerate : MonoBehaviour
 {
     [SerializeField] private GameObject prefab;
-    [SerializeField] private Sprite CellX;
-    [SerializeField] private Sprite CellO;
     [SerializeField] private int height;
     [SerializeField] private int width;
+    [SerializeField] private bool turnX;
 
     // Start is called before the first frame update
     void Start()
@@ -33,6 +32,14 @@ public class NewBehaviourScript : MonoBehaviour
         Console.Write(Input.GetAxis("Mouse ScrollWheel"));
         var board = this.GetComponent<GridLayoutGroup>(); 
         board.cellSize.Set(board.cellSize.x+Input.GetAxis("Mouse ScrollWheel")*10, board.cellSize.y + Input.GetAxis("Mouse ScrollWheel")*10);
+    }
 
+    public bool GetTurn()
+    {
+        return turnX;
+    }
+    public void SetTurn(bool turn)
+    {
+        turnX = !turn;
     }
 }

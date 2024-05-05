@@ -174,10 +174,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefab: {fileID: 2432465380543214974, guid: 616bb44be6fa6874ab7f717ca7caab28, type: 3}
-  CellX: {fileID: 0}
-  CellO: {fileID: 0}
   height: 10
   width: 20
+  turnX: 1
 --- !u!114 &342566110
 MonoBehaviour:
   m_ObjectHideFlags: 0
