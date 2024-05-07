@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
@@ -10,6 +11,8 @@ using UnityEngine.UI;
 public class BoardGenerate : MonoBehaviour
 {
     [SerializeField] private GameObject prefab;
+    [SerializeField] private GameObject gameOverUI;
+    [SerializeField] private TextMeshProUGUI winText;
     private int height;
     private int width;
     private int currentTurn;
@@ -19,6 +22,7 @@ public class BoardGenerate : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        gameOverUI.SetActive(false);
         width = StaticData.width;
         height = StaticData.height;
         currentTurn = StaticData.currentTurn;
@@ -28,14 +32,22 @@ public class BoardGenerate : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        Zoom();
+        ChangePosition();
+    }
+
+    private void ChangePosition()
+    {
+        var speed = 100000;
+        GetComponent<RectTransform>().Translate(Vector3.up * Time.deltaTime * Input.GetAxis("Vertical") * Time.deltaTime * speed);
+        GetComponent<RectTransform>().Translate(Vector3.right * Time.deltaTime * Input.GetAxis("Horizontal") * Time.deltaTime * speed);
     }
 
     private void Zoom()
     {
         var board = this.GetComponent<GridLayoutGroup>();
-        Console.Write(Input.GetAxis("Mouse ScrollWheel"));
-        board.cellSize.Set(board.cellSize.x + Input.GetAxis("Mouse ScrollWheel") * 10, board.cellSize.y + Input.GetAxis("Mouse ScrollWheel") * 10);
+        var zoom = Input.GetAxis("Mouse ScrollWheel") * 100;
+        board.cellSize = new Vector2(board.cellSize.x + zoom, board.cellSize.y + zoom);
     }
 
     private void CreateBoard(int width, int height)
@@ -55,14 +67,14 @@ public class BoardGenerate : MonoBehaviour
     private void Win()
     {
         isWin = true;
-        if(currentTurn==1)
+        gameOverUI.SetActive(true);
+        if (currentTurn==1)
         {
-
-            Debug.Log("X win");
+            winText.text= "X win";
         }
         else
         {
-            Debug.Log("O win");
+            winText.text = "O win";
         }
         
     }

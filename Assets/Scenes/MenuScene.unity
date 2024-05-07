@@ -713,18 +713,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1a182d473ff319428b69a5b2f674048, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playButton:
+  - {fileID: 892115730}
+  exitButton:
+  - {fileID: 671773841}
+  caroX: {fileID: 21300000, guid: 839e78dd8cf0c8d4e8f417f8bfeb272f, type: 3}
+  caroO: {fileID: 21300000, guid: 34641e95066470f4da01c42b4002f4cd, type: 3}
   mainMenu: {fileID: 1191217863}
   settingMenu: {fileID: 428041209}
-  exit: {fileID: 0}
-  playButton: {fileID: 892115730}
   settingButton: {fileID: 671773841}
   returnButton: {fileID: 317583410}
-  exitButton: {fileID: 1006709136}
   checkButton: {fileID: 617083144}
   widthField: {fileID: 1153157415}
   heightField: {fileID: 2112186817}
-  caroX: {fileID: 21300000, guid: 839e78dd8cf0c8d4e8f417f8bfeb272f, type: 3}
-  caroO: {fileID: 21300000, guid: 34641e95066470f4da01c42b4002f4cd, type: 3}
 --- !u!1 &572554662
 GameObject:
   m_ObjectHideFlags: 0
