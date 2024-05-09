@@ -1,6 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -15,6 +12,10 @@ public class IngameMenu : Menu
         base.Awake();
         pauseMenu.SetActive(false);
         resumeButton.onClick.AddListener(Resume);
+        Width = StaticData.width;
+        Height = StaticData.height;
+        CurrentTurn = StaticData.currentTurn;
+        BotMode = StaticData.botMode;
         foreach (var a in titleButton)
         {
             a.onClick.AddListener(ToTitle);

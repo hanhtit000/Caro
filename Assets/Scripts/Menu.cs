@@ -1,7 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -12,12 +8,16 @@ public class Menu : MonoBehaviour
     [SerializeField] private Button[] exitButton;
     [SerializeField] private Sprite caroX;
     [SerializeField] private Sprite caroO;
+    [SerializeField] private Sprite checkBotMode;
     private int width;
     private int height;
-    private int currentTurn;
+    private bool currentTurn;
+    private bool botMode;
 
     public Sprite CaroX { get { return caroX; } }
     public Sprite CaroO { get { return caroO; } }
+
+    public Sprite CheckBotMode { get { return checkBotMode; } }
     public int Width
     {
         get { return width; }
@@ -29,10 +29,16 @@ public class Menu : MonoBehaviour
         get { return height; }
         set { height = value; }
     }
-    public int CurrentTurn
+    public bool CurrentTurn
     {
         get { return currentTurn; }
         set { currentTurn = value; }
+    }
+
+    public bool BotMode
+    {
+        get { return botMode; }
+        set { botMode = value; }
     }
     // Start is called before the first frame update
     public virtual void Awake()
@@ -45,15 +51,17 @@ public class Menu : MonoBehaviour
         {
             a.onClick.AddListener(Exit);
         }
-        width = 10;
-        height = 10;
-        currentTurn = 1;
+        Width = 10;
+        Height = 10;
+        CurrentTurn = true;
+        BotMode = false;
     }
     private void PlayGame()
     {
         StaticData.width = Width;
         StaticData.height = Height;
         StaticData.currentTurn = CurrentTurn;
+        StaticData.botMode = botMode;
         SceneManager.LoadSceneAsync("GameScene");
     }
     private void Exit()

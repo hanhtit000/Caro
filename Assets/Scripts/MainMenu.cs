@@ -16,6 +16,7 @@ public class MainMenu : Menu
     [SerializeField] private Button checkButton;
     [SerializeField] private TMP_InputField widthField;
     [SerializeField] private TMP_InputField heightField;
+    [SerializeField] private Button botModeButton;
 
     public override void Awake()
     {
@@ -30,6 +31,7 @@ public class MainMenu : Menu
         heightField.onEndEdit.AddListener(HeightEdit);
         checkButton.GetComponent<Image>().sprite = CaroX;
         checkButton.onClick.AddListener(Check);
+        botModeButton.onClick.AddListener(EnableBotMode);
     }
 
     private void Setting()
@@ -40,14 +42,14 @@ public class MainMenu : Menu
 
     private void Check()
     {
-        if (CurrentTurn == 1)
+        if (CurrentTurn == true)
         {
-            CurrentTurn = 2;
+            CurrentTurn = false;
             checkButton.GetComponent<Image>().sprite = CaroO;
         }
         else
         {
-            CurrentTurn = 1;
+            CurrentTurn = true;
             checkButton.GetComponent<Image>().sprite = CaroX;
         }
     }
@@ -59,5 +61,19 @@ public class MainMenu : Menu
     private void HeightEdit(string arg0)
     {
         Height = Int32.Parse(heightField.text);
+    }
+
+    private void EnableBotMode()
+    {
+        if(BotMode == false)
+        {
+            BotMode = true;
+            botModeButton.GetComponent<Image>().sprite = CheckBotMode;
+        }
+        else
+        {
+            BotMode = false;
+            botModeButton.GetComponent<Image>().sprite = null;
+        }
     }
 }

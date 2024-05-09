@@ -25,9 +25,9 @@ public class CellTransform : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void ChangeImage(int s)
+    public void ChangeImage(bool s)
     {
-        if(s ==  2)
+        if(s ==  false)
         {
             image.sprite = CellO;
         }
@@ -48,9 +48,13 @@ public class CellTransform : MonoBehaviour
             var turn = board.GetTurn();
             ChangeImage(turn);
             board.Check(row, column);
-            if(turn==1) board.SetTurn(turn+1);
-            else board.SetTurn(1);
+            board.SetTurn();
             isAcitve = false;
         }
+    }
+
+    public void BotClick()
+    {
+        Onclick();
     }
 }
