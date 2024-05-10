@@ -68,6 +68,7 @@ public class BoardGenerate : MonoBehaviour
         caroMatrix = new int[height + 1, width + 1];
         isWin = false;
         var board = this.GetComponent<GridLayoutGroup>();
+        caroList = new List<CellTransform>();
         board.constraintCount = height;
         for (int i = 0; i < height; i++)
         {
@@ -110,10 +111,7 @@ public class BoardGenerate : MonoBehaviour
         currentTurn = !currentTurn;
         if (isBotMode)
         {
-            if (currentTurn == botTurn)
-            {
-                BotCheck();
-            }
+            if (currentTurn == botTurn) BotCheck();
         }
     }
 
@@ -127,19 +125,19 @@ public class BoardGenerate : MonoBehaviour
         int maxPoint = 0;
         int defPoint = 0;
         int atkPoint = 0;
-
+        Vector2Int location = Vector2Int.zero;
         //thuật toán minmax tìm điểm cao nhất để đánh
         for (int i = 0; i < height; i++)
         {
             for (int j = 0; j < width; j++)
             {
                 //nếu nước cờ chưa có ai đánh và không bị cắt tỉa thì mới xét giá trị MinMax
-                if (caroMatrix[i, j] == 0 && !catTia(i, j))
+                if (caroMatrix[i, j] == 0 && !CheckEnemies(i, j))
                 {
                     int DiemTam;
 
                     atkPoint = CheckAtkRow(i, j) + CheckAtkColumn(i, j) + CheckAtkMainDiagonal(i, j) + CheckAtkSubDiagonal(i, j);
-                    defPoint = CheckDefRow(i, j) + duyetPN_Doc(i, j) + duyetPN_CheoXuoi(i, j) + duyetPN_CheoNguoc(i, j);
+                    defPoint = CheckDefRow(i, j) + CheckDefColumn(i, j) + CheckDefMainDiagonal(i, j) + CheckDefSubDiagonal(i, j);
 
                     if (defPoint > atkPoint)
                     {
@@ -153,27 +151,28 @@ public class BoardGenerate : MonoBehaviour
                     if (maxPoint < DiemTam)
                     {
                         maxPoint = DiemTam;
-                        oco = new C_OCo(MangOCo[i, j].Dong, MangOCo[i, j].Cot, MangOCo[i, j].SoHuu);
+                        location = new Vector2Int(i, j);
                     }
                 }
             }
         }
-        danhCo(g, oco.Cot * C_OCo.CHIEU_RONG + 1, oco.Dong * C_OCo.CHIEU_CAO + 1);
+        int turn = currentTurn ? 2 : 1;
+        caroMatrix[location.x,location.y] = turn;
+        caroList[location.x * width + location.y].BotClick();
     }
 
 
     #region Cắt tỉa Alpha betal
-    bool catTia(int row, int column)
+    bool CheckEnemies(int row, int column)
     {
         //nếu cả 4 hướng đều không có nước cờ thì cắt tỉa
-        if (catTiaNgang(row, column) && catTiaDoc(row, column) && catTiaCheoPhai(row, column) && catTiaCheoTrai(row, column))
-            return true;
-
+        if (CheckEnemiesRow(row, column) && CheckEnemiesColumn(row, column) &&
+            CheckEnemiesMainDiagonal(row, column) && CheckEnemiesSubDiagonal(row, column)) return true;
         //chạy đến đây thì 1 trong 4 hướng vẫn có nước cờ thì không được cắt tỉa
         return false;
     }
 
-    bool catTiaNgang(int row, int column)
+    bool CheckEnemiesRow(int row, int column)
     {
         //duyệt bên phải
         if (column <= width - 5)
@@ -190,7 +189,7 @@ public class BoardGenerate : MonoBehaviour
         //nếu chạy đến đây tức duyệt 2 bên đều không có nước đánh thì cắt tỉa
         return true;
     }
-    bool catTiaDoc(int row, int column)
+    bool CheckEnemiesColumn(int row, int column)
     {
         //duyệt phía giưới
         if (row <= height - 5)
@@ -207,7 +206,7 @@ public class BoardGenerate : MonoBehaviour
         //nếu chạy đến đây tức duyệt 2 bên đều không có nước đánh thì cắt tỉa
         return true;
     }
-    bool catTiaCheoPhai(int row, int column)
+    bool CheckEnemiesMainDiagonal(int row, int column)
     {
         //duyệt từ trên xuống
         if (row <= height - 5 && column >= 4)
@@ -224,7 +223,7 @@ public class BoardGenerate : MonoBehaviour
         //nếu chạy đến đây tức duyệt 2 bên đều không có nước đánh thì cắt tỉa
         return true;
     }
-    bool catTiaCheoTrai(int row, int column)
+    bool CheckEnemiesSubDiagonal(int row, int column)
     {
         //duyệt từ trên xuống
         if (row <= height - 5 && column <= width - 5)
@@ -276,7 +275,7 @@ public class BoardGenerate : MonoBehaviour
                     rightEnemies++;
                     break;
                 }
-            }  
+            }
         }
 
         //bên trái
@@ -290,7 +289,7 @@ public class BoardGenerate : MonoBehaviour
             }
             else
             {
-                if (caroMatrix[row, column + count] == 0) space++;
+                if (caroMatrix[row, column - count] == 0) space++;
                 else
                 {
                     leftEnemies++;
@@ -326,13 +325,13 @@ public class BoardGenerate : MonoBehaviour
             else
             {
                 if (caroMatrix[row - count, column] == 0) space++;
-                else 
+                else
                 {
                     upEnemies++;
                     break;
                 }
             }
-                
+
         }
         //bên dưới
         for (int count = 1; count <= 4 && row < height - 5; count++)
@@ -345,7 +344,7 @@ public class BoardGenerate : MonoBehaviour
             }
             else
             {
-                if (caroMatrix[row - count, column] == 0) space++;
+                if (caroMatrix[row + count, column] == 0) space++;
                 else
                 {
                     downEnemies++;
@@ -387,7 +386,7 @@ public class BoardGenerate : MonoBehaviour
                     downDiagonalEnemies++;
                     break;
                 }
-            }     
+            }
         }
         //chéo xuôi lên
         for (int count = 1; count <= 4 && row > 4 && column > 4; count++)
@@ -400,7 +399,7 @@ public class BoardGenerate : MonoBehaviour
             }
             else
             {
-                if (caroMatrix[row + count, column + count] == 0) space++;
+                if (caroMatrix[row - count, column - count] == 0) space++;
                 else
                 {
                     upDiagonalEnemies++;
@@ -456,7 +455,7 @@ public class BoardGenerate : MonoBehaviour
             }
             else
             {
-                if (caroMatrix[row - count, column + count] == 0) space++;
+                if (caroMatrix[row + count, column - count] == 0) space++;
                 else
                 {
                     downDiagonalEnemies++;
@@ -475,339 +474,276 @@ public class BoardGenerate : MonoBehaviour
     #region DEFENSE
 
     //duyệt ngang
-    public int CheckDefRow(int dongHT, int cotHT)
+    public int CheckDefRow(int row, int column)
     {
-        int DiemPhongNgu = 0;
-        int SoQuanTaTrai = 0;
-        int SoQuanTaPhai = 0;
-        int SoQuanDich = 0;
-        int KhoangChongPhai = 0;
-        int KhoangChongTrai = 0;
+        int defPoint = 0;
+        int leftAllies = 0;
+        int rightAllies = 0;
+        int enemies = 0;
+        int rightSpace = 0;
+        int leftSpace = 0;
         bool ok = false;
+        int turn = botTurn ? 2 : 1;
 
-
-        for (int dem = 1; dem <= 4 && cotHT < BanCo.SoCot - 5; dem++)
+        for (int count = 1; count <= 4 && column < width - 5; count++)
         {
-            if (MangOCo[dongHT, cotHT + dem].SoHuu == 2)
+            if (caroMatrix[row, column + count] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT, cotHT + dem].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaTrai++;
+                if (count == 4) defPoint -= 170;
+                leftAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongPhai++;
+                if (caroMatrix[row, column + count] == 0)
+                {
+                    if (count == 1) ok = true;
+                    rightSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
-
-        if (SoQuanDich == 3 && KhoangChongPhai == 1 && ok)
-            DiemPhongNgu -= 200;
-
+        if (enemies == 3 && rightSpace == 1 && ok) defPoint -= 200;
         ok = false;
-
-        for (int dem = 1; dem <= 4 && cotHT > 4; dem++)
+        for (int count = 1; count <= 4 && column > 4; count++)
         {
-            if (MangOCo[dongHT, cotHT - dem].SoHuu == 2)
+            if (caroMatrix[row, column - count] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT, cotHT - dem].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaPhai++;
+                if (count == 4) defPoint -= 170;
+                rightAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongTrai++;
+                if (caroMatrix[row, column - count] == 0)
+                {
+                    if (count == 1) ok = true;
+                    leftSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
-
-        if (SoQuanDich == 3 && KhoangChongTrai == 1 && ok)
-            DiemPhongNgu -= 200;
-
-        if (SoQuanTaPhai > 0 && SoQuanTaTrai > 0 && (KhoangChongTrai + KhoangChongPhai + SoQuanDich) < 4)
-            return 0;
-
-        DiemPhongNgu -= listAtkPoint[SoQuanTaPhai + SoQuanTaPhai];
-        DiemPhongNgu += listDefPoint[SoQuanDich];
-
-        return DiemPhongNgu;
+        if (enemies == 3 && leftSpace == 1 && ok) defPoint -= 200;
+        if (rightAllies > 0 && leftAllies > 0 && (leftSpace + rightSpace + enemies) < 4) return 0;
+        defPoint -= listAtkPoint[rightAllies + rightAllies];
+        defPoint += listDefPoint[enemies];
+        return defPoint;
     }
 
     //duyệt dọc
-    public int duyetPN_Doc(int dongHT, int cotHT)
+    public int CheckDefColumn(int row, int column)
     {
-        int DiemPhongNgu = 0;
-        int SoQuanTaTrai = 0;
-        int SoQuanTaPhai = 0;
-        int SoQuanDich = 0;
-        int KhoangChongTren = 0;
-        int KhoangChongDuoi = 0;
+        int defPoint = 0;
+        int upAllies = 0;
+        int downAllies = 0;
+        int enemies = 0;
+        int upSpace = 0;
+        int downSpace = 0;
         bool ok = false;
-
+        int turn = botTurn ? 2 : 1;
         //lên
-        for (int dem = 1; dem <= 4 && dongHT > 4; dem++)
+        for (int count = 1; count <= 4 && row > 4; count++)
         {
-            if (MangOCo[dongHT - dem, cotHT].SoHuu == 2)
+            if (caroMatrix[row - count, column] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-
-            }
-            else
-                if (MangOCo[dongHT - dem, cotHT].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaPhai++;
+                if (count == 4) defPoint -= 170;
+                downAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongTren++;
+                if (caroMatrix[row - count, column] == 0)
+                {
+                    if (count == 1) ok = true;
+                    upSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
-
-        if (SoQuanDich == 3 && KhoangChongTren == 1 && ok)
-            DiemPhongNgu -= 200;
-
+        if (enemies == 3 && upSpace == 1 && ok) defPoint -= 200;
         ok = false;
+
         //xuống
-        for (int dem = 1; dem <= 4 && dongHT < BanCo.SoDong - 5; dem++)
+        for (int count = 1; count <= 4 && row < height - 5; count++)
         {
             //gặp quân địch
-            if (MangOCo[dongHT + dem, cotHT].SoHuu == 2)
+            if (caroMatrix[row + count, column] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT + dem, cotHT].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaTrai++;
+                if (count == 4) defPoint -= 170;
+                upAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongDuoi++;
+                if (caroMatrix[row + count, column] == 0)
+                {
+                    if (count == 1) ok = true;
+                    downSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
 
-        if (SoQuanDich == 3 && KhoangChongDuoi == 1 && ok)
-            DiemPhongNgu -= 200;
-
-        if (SoQuanTaPhai > 0 && SoQuanTaTrai > 0 && (KhoangChongTren + KhoangChongDuoi + SoQuanDich) < 4)
-            return 0;
-
-        DiemPhongNgu -= listAtkPoint[SoQuanTaTrai + SoQuanTaPhai];
-        DiemPhongNgu += listDefPoint[SoQuanDich];
-        return DiemPhongNgu;
+        if (enemies == 3 && downSpace == 1 && ok) defPoint -= 200;
+        if (downAllies > 0 && upAllies > 0 && (upSpace + downSpace + enemies) < 4) return 0;
+        defPoint -= listAtkPoint[upAllies + downAllies];
+        defPoint += listDefPoint[enemies];
+        return defPoint;
     }
 
     //chéo xuôi
-    public int duyetPN_CheoXuoi(int dongHT, int cotHT)
+    public int CheckDefMainDiagonal(int row, int column)
     {
-        int DiemPhongNgu = 0;
-        int SoQuanTaTrai = 0;
-        int SoQuanTaPhai = 0;
-        int SoQuanDich = 0;
-        int KhoangChongTren = 0;
-        int KhoangChongDuoi = 0;
+        int defPoint = 0;
+        int leftAllies = 0;
+        int rightAllies = 0;
+        int enemies = 0;
+        int upSpace = 0;
+        int downSpace = 0;
         bool ok = false;
+        int turn = botTurn ? 2 : 1;
 
         //lên
-        for (int dem = 1; dem <= 4 && dongHT < BanCo.SoDong - 5 && cotHT < BanCo.SoCot - 5; dem++)
+        for (int count = 1; count <= 4 && row < height - 5 && column < width - 5; count++)
         {
-            if (MangOCo[dongHT + dem, cotHT + dem].SoHuu == 2)
+            if (caroMatrix[row + count, column + count] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT + dem, cotHT + dem].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaPhai++;
+                if (count == 4) defPoint -= 170;
+                rightAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongTren++;
+                if (caroMatrix[row + count, column + count] == 0)
+                {
+                    if (count == 1) ok = true;
+                    upSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
-
-        if (SoQuanDich == 3 && KhoangChongTren == 1 && ok)
-            DiemPhongNgu -= 200;
-
+        if (enemies == 3 && upSpace == 1 && ok) defPoint -= 200;
         ok = false;
+
         //xuống
-        for (int dem = 1; dem <= 4 && dongHT > 4 && cotHT > 4; dem++)
+        for (int count = 1; count <= 4 && row > 4 && column > 4; count++)
         {
-            if (MangOCo[dongHT - dem, cotHT - dem].SoHuu == 2)
+            if (caroMatrix[row - count, column - count] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT - dem, cotHT - dem].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaTrai++;
+                if (count == 4) defPoint -= 170;
+                leftAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongDuoi++;
+                if (caroMatrix[row - count, column - count] == 0)
+                {
+                    if (count == 1) ok = true;
+                    downSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
+
         }
 
-        if (SoQuanDich == 3 && KhoangChongDuoi == 1 && ok)
-            DiemPhongNgu -= 200;
-
-        if (SoQuanTaPhai > 0 && SoQuanTaTrai > 0 && (KhoangChongTren + KhoangChongDuoi + SoQuanDich) < 4)
-            return 0;
-
-        DiemPhongNgu -= listAtkPoint[SoQuanTaPhai + SoQuanTaTrai];
-        DiemPhongNgu += listDefPoint[SoQuanDich];
-
-        return DiemPhongNgu;
+        if (enemies == 3 && downSpace == 1 && ok) defPoint -= 200;
+        if (rightAllies > 0 && leftAllies > 0 && (upSpace + downSpace + enemies) < 4) return 0;
+        defPoint -= listAtkPoint[rightAllies + leftAllies];
+        defPoint += listDefPoint[enemies];
+        return defPoint;
     }
 
     //chéo ngược
-    public int duyetPN_CheoNguoc(int dongHT, int cotHT)
+    public int CheckDefSubDiagonal(int row, int column)
     {
-        int DiemPhongNgu = 0;
-        int SoQuanTaTrai = 0;
-        int SoQuanTaPhai = 0;
-        int SoQuanDich = 0;
-        int KhoangChongTren = 0;
-        int KhoangChongDuoi = 0;
+        int defPoint = 0;
+        int leftAllies = 0;
+        int rightAllies = 0;
+        int enemies = 0;
+        int upSpace = 0;
+        int downSpace = 0;
         bool ok = false;
-
+        int turn = botTurn ? 2 : 1;
         //lên
-        for (int dem = 1; dem <= 4 && dongHT > 4 && cotHT < BanCo.SoCot - 5; dem++)
+        for (int count = 1; count <= 4 && row > 4 && column < width - 5; count++)
         {
 
-            if (MangOCo[dongHT - dem, cotHT + dem].SoHuu == 2)
+            if (caroMatrix[row - count, column + count] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT - dem, cotHT + dem].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaPhai++;
+                if (count == 4) defPoint -= 170;
+                rightAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongTren++;
+                if (caroMatrix[row - count, column + count] == 0)
+                {
+                    if (count == 1) ok = true;
+                    upSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
-
-
-        if (SoQuanDich == 3 && KhoangChongTren == 1 && ok)
-            DiemPhongNgu -= 200;
-
+        if (enemies == 3 && upSpace == 1 && ok) defPoint -= 200;
         ok = false;
 
         //xuống
-        for (int dem = 1; dem <= 4 && dongHT < BanCo.SoDong - 5 && cotHT > 4; dem++)
+        for (int count = 1; count <= 4 && row < height - 5 && column > 4; count++)
         {
-            if (MangOCo[dongHT + dem, cotHT - dem].SoHuu == 2)
+            if (caroMatrix[row + count, column - count] == turn)
             {
-                if (dem == 1)
-                    DiemPhongNgu += 9;
-
-                SoQuanDich++;
-            }
-            else
-                if (MangOCo[dongHT + dem, cotHT - dem].SoHuu == 1)
-            {
-                if (dem == 4)
-                    DiemPhongNgu -= 170;
-
-                SoQuanTaTrai++;
+                if (count == 4) defPoint -= 170;
+                leftAllies++;
                 break;
             }
             else
             {
-                if (dem == 1)
-                    ok = true;
-
-                KhoangChongDuoi++;
+                if (caroMatrix[row + count, column - count] == 0)
+                {
+                    if (count == 1) ok = true;
+                    downSpace++;
+                }
+                else
+                {
+                    if (count == 1) defPoint += 9;
+                    enemies++;
+                }
             }
         }
 
-        if (SoQuanDich == 3 && KhoangChongDuoi == 1 && ok)
-            DiemPhongNgu -= 200;
-
-        if (SoQuanTaPhai > 0 && SoQuanTaTrai > 0 && (KhoangChongTren + KhoangChongDuoi + SoQuanDich) < 4)
-            return 0;
-
-        DiemPhongNgu -= listAtkPoint[SoQuanTaTrai + SoQuanTaPhai];
-        DiemPhongNgu += listDefPoint[SoQuanDich];
-
-        return DiemPhongNgu;
+        if (enemies == 3 && downSpace == 1 && ok) defPoint -= 200;
+        if (rightAllies > 0 && leftAllies > 0 && (upSpace + downSpace + enemies) < 4) return 0;
+        defPoint -= listAtkPoint[leftAllies + rightAllies];
+        defPoint += listDefPoint[enemies];
+        return defPoint;
     }
 
     #endregion
@@ -816,158 +752,97 @@ public class BoardGenerate : MonoBehaviour
 
     #region duyệt chiến thắng theo 8 hướng
     //kiểm tra chiến thắng
-    public bool kiemTraChienThang(Graphics g)
+    public void Check(int row, int column)
     {
-        if (_stkCacNuocDaDi.Count != 0)
-        {
-            foreach (C_OCo oco in _stkCacNuocDaDi)
+        int turn = currentTurn ? 2 : 1;
+        caroMatrix[row, column] = turn;
+        //duyệt theo 8 hướng mỗi quân cờ
+        if (CheckRightRow(row, column, turn) || CheckLeftRow(row, column, turn) 
+            || CheckUpColumn(row, column, turn) || CheckDownColumn(row, column, turn) 
+            || CheckUpMainDiagonal(row, column, turn) || CheckDownMainDiagonal(row, column, turn) 
+            || CheckDownSubDiagonal(row, column, turn) || CheckUpSubDiagonal(row, column, turn))
             {
-                //duyệt theo 8 hướng mỗi quân cờ
-                if (duyetNgangPhai(g, oco.Dong, oco.Cot, oco.SoHuu) || duyetNgangTrai(g, oco.Dong, oco.Cot, oco.SoHuu)
-                    || duyetDocTren(g, oco.Dong, oco.Cot, oco.SoHuu) || duyetDocDuoi(g, oco.Dong, oco.Cot, oco.SoHuu)
-                    || duyetCheoXuoiTren(g, oco.Dong, oco.Cot, oco.SoHuu) || duyetCheoXuoiDuoi(g, oco.Dong, oco.Cot, oco.SoHuu)
-                    || duyetCheoNguocTren(g, oco.Dong, oco.Cot, oco.SoHuu) || duyetCheoNguocDuoi(g, oco.Dong, oco.Cot, oco.SoHuu))
-                {
-                    ketThucTroChoi(oco);
-                    return true;
-                }
+                Win();
             }
-        }
-
-        return false;
     }
 
-    //vẽ đường kẻ trên 5 nước thắng
-    public void veDuongChienThang(Graphics g, int x1, int y1, int x2, int y2)
+    public bool CheckRightRow(int row, int column, int turn)
     {
-        g.DrawLine(new Pen(Color.Blue, 3f), x1, y1, x2, y2);
-    }
-
-    public bool duyetNgangPhai(Graphics g, int dongHT, int cotHT, int SoHuu)
-    {
-        if (cotHT > BanCo.SoCot - 5)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (column > width - 5) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT, cotHT + dem].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row, column + count] != turn) return false;
         }
-        veDuongChienThang(g, (cotHT) * C_OCo.CHIEU_RONG, dongHT * C_OCo.CHIEU_CAO + C_OCo.CHIEU_CAO / 2, (cotHT + 5) * C_OCo.CHIEU_RONG, dongHT * C_OCo.CHIEU_CAO + C_OCo.CHIEU_CAO / 2);
         return true;
     }
 
-    public bool duyetNgangTrai(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckLeftRow(int row, int column, int turn)
     {
-        if (cotHT < 4)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (column < 4) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT, cotHT - dem].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row, column - count] != turn) return false;
         }
-        veDuongChienThang(g, (cotHT + 1) * C_OCo.CHIEU_RONG, dongHT * C_OCo.CHIEU_CAO + C_OCo.CHIEU_CAO / 2, (cotHT - 4) * C_OCo.CHIEU_RONG, dongHT * C_OCo.CHIEU_CAO + C_OCo.CHIEU_CAO / 2);
         return true;
     }
 
-    public bool duyetDocTren(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckUpColumn(int row, int column, int turn)
     {
-        if (dongHT < 4)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (row < 4) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT - dem, cotHT].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row - count, column] != turn) return false;
         }
-        veDuongChienThang(g, cotHT * C_OCo.CHIEU_RONG + C_OCo.CHIEU_RONG / 2, (dongHT + 1) * C_OCo.CHIEU_CAO, cotHT * C_OCo.CHIEU_RONG + C_OCo.CHIEU_RONG / 2, (dongHT - 4) * C_OCo.CHIEU_CAO);
         return true;
     }
 
-    public bool duyetDocDuoi(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckDownColumn(int row, int column, int turn)
     {
-        if (dongHT > BanCo.SoDong - 5)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (row > height - 5) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT + dem, cotHT].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row + count, column] != turn) return false;
         }
-        veDuongChienThang(g, cotHT * C_OCo.CHIEU_RONG + C_OCo.CHIEU_RONG / 2, dongHT * C_OCo.CHIEU_CAO, cotHT * C_OCo.CHIEU_RONG + C_OCo.CHIEU_RONG / 2, (dongHT + 5) * C_OCo.CHIEU_CAO);
         return true;
     }
 
-    public bool duyetCheoXuoiTren(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckUpMainDiagonal(int row, int column, int turn)
     {
-        if (dongHT < 4 || cotHT < 4)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (row < 4 || column < 4) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT - dem, cotHT - dem].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row - count, column - count] != turn) return false;
         }
-        veDuongChienThang(g, (cotHT + 1) * C_OCo.CHIEU_RONG, (dongHT + 1) * C_OCo.CHIEU_CAO, (cotHT - 4) * C_OCo.CHIEU_RONG, (dongHT - 4) * C_OCo.CHIEU_CAO);
         return true;
     }
 
-    public bool duyetCheoXuoiDuoi(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckDownMainDiagonal(int row, int column, int turn)
     {
-        if (dongHT > BanCo.SoDong - 5 || cotHT > BanCo.SoCot - 5)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (row > height - 5 || column > width - 5) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT + dem, cotHT + dem].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row + count, column + count] != turn) return false;
         }
-        veDuongChienThang(g, cotHT * C_OCo.CHIEU_RONG, dongHT * C_OCo.CHIEU_CAO, (cotHT + 5) * C_OCo.CHIEU_RONG, (dongHT + 5) * C_OCo.CHIEU_CAO);
         return true;
     }
 
-    public bool duyetCheoNguocDuoi(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckDownSubDiagonal(int row, int column, int turn)
     {
-        if (dongHT > BanCo.SoDong - 5 || cotHT < 4)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (row > height - 5 || column < 4) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT + dem, cotHT - dem].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row + count, column - count] != turn) return false;
         }
-        veDuongChienThang(g, (cotHT + 1) * C_OCo.CHIEU_RONG, dongHT * C_OCo.CHIEU_CAO, (cotHT - 4) * C_OCo.CHIEU_RONG, (dongHT + 5) * C_OCo.CHIEU_CAO);
         return true;
     }
 
-    public bool duyetCheoNguocTren(Graphics g, int dongHT, int cotHT, int SoHuu)
+    public bool CheckUpSubDiagonal(int row, int column, int turn)
     {
-        if (dongHT < 4 || cotHT > BanCo.SoCot - 5)
-            return false;
-        for (int dem = 1; dem <= 4; dem++)
+        if (row < 4 || column > width - 5) return false;
+        for (int count = 1; count <= 4; count++)
         {
-            if (MangOCo[dongHT - dem, cotHT + dem].SoHuu != SoHuu)
-            {
-                return false;
-            }
-
+            if (caroMatrix[row - count, column + count] != turn) return false;
         }
-        veDuongChienThang(g, cotHT * C_OCo.CHIEU_RONG, (dongHT + 1) * C_OCo.CHIEU_CAO, (cotHT + 5) * C_OCo.CHIEU_RONG, (dongHT - 4) * C_OCo.CHIEU_CAO);
         return true;
     }
 
