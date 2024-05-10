@@ -37,6 +37,10 @@ public class IngameMenu : Menu
 
     private void ToTitle()
     {
+        StaticData.width = Width;
+        StaticData.height = Height;
+        StaticData.currentTurn = CurrentTurn;
+        StaticData.botMode = BotMode;
         SceneManager.LoadSceneAsync("MenuScene");
     }
 }

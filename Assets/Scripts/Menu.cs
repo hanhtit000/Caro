@@ -51,17 +51,17 @@ public class Menu : MonoBehaviour
         {
             a.onClick.AddListener(Exit);
         }
-        Width = 10;
-        Height = 10;
-        CurrentTurn = true;
-        BotMode = false;
+        Width = StaticData.width != 0 ? StaticData.width : 10;
+        Height = StaticData.height != 0 ? StaticData.height : 10;
+        CurrentTurn = StaticData.currentTurn;
+        BotMode = StaticData.botMode;
     }
     private void PlayGame()
     {
         StaticData.width = Width;
         StaticData.height = Height;
         StaticData.currentTurn = CurrentTurn;
-        StaticData.botMode = botMode;
+        StaticData.botMode = BotMode;
         SceneManager.LoadSceneAsync("GameScene");
     }
     private void Exit()

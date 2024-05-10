@@ -29,7 +29,8 @@ public class MainMenu : Menu
         heightField.text = Height.ToString();
         widthField.onEndEdit.AddListener(WidthEdit);
         heightField.onEndEdit.AddListener(HeightEdit);
-        checkButton.GetComponent<Image>().sprite = CaroX;
+        checkButton.GetComponent<Image>().sprite = CurrentTurn? CaroX: CaroO;
+        botModeButton.GetComponent<Image>().sprite = BotMode? CheckBotMode: null;
         checkButton.onClick.AddListener(Check);
         botModeButton.onClick.AddListener(EnableBotMode);
     }

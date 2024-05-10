@@ -245,8 +245,8 @@ public class BoardGenerate : MonoBehaviour
 
     #region AI
 
-    private int[] listAtkPoint = new int[7] { 0, 4, 25, 246, 7300, 6561, 59049 };
-    private int[] listDefPoint = new int[7] { 0, 3, 24, 243, 2197, 19773, 177957 };
+    private int[] listAtkPoint = new int[7] { 0, 3, 24, 243, 2197, 19773, 177957 };
+    private int[] listDefPoint = new int[7] { 0, 4, 25, 246, 7300, 6561, 59049 };
 
     #region ATTACK
     //duyệt ngang

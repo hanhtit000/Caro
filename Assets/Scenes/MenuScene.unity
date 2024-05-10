@@ -718,7 +718,7 @@ MonoBehaviour:
   playButton:
   - {fileID: 892115730}
   exitButton:
-  - {fileID: 671773841}
+  - {fileID: 1006709136}
   caroX: {fileID: 21300000, guid: 839e78dd8cf0c8d4e8f417f8bfeb272f, type: 3}
   caroO: {fileID: 21300000, guid: 34641e95066470f4da01c42b4002f4cd, type: 3}
   checkBotMode: {fileID: 21300000, guid: cec71ded2afe00642b01ef1e17154605, type: 3}
