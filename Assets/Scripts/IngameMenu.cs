@@ -12,10 +12,6 @@ public class IngameMenu : Menu
         base.Awake();
         pauseMenu.SetActive(false);
         resumeButton.onClick.AddListener(Resume);
-        Width = StaticData.width;
-        Height = StaticData.height;
-        CurrentTurn = StaticData.currentTurn;
-        BotMode = StaticData.botMode;
         foreach (var a in titleButton)
         {
             a.onClick.AddListener(ToTitle);
@@ -37,10 +33,6 @@ public class IngameMenu : Menu
 
     private void ToTitle()
     {
-        StaticData.width = Width;
-        StaticData.height = Height;
-        StaticData.currentTurn = CurrentTurn;
-        StaticData.botMode = BotMode;
         SceneManager.LoadSceneAsync("MenuScene");
     }
 }

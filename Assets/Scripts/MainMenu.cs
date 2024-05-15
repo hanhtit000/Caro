@@ -25,12 +25,12 @@ public class MainMenu : Menu
         settingMenu.SetActive(false);
         settingButton.onClick.AddListener(Setting);
         returnButton.onClick.AddListener(Setting);
-        widthField.text = Width.ToString();
-        heightField.text = Height.ToString();
+        widthField.text = StaticData.width.ToString();
+        heightField.text = StaticData.height.ToString();
         widthField.onEndEdit.AddListener(WidthEdit);
         heightField.onEndEdit.AddListener(HeightEdit);
-        checkButton.GetComponent<Image>().sprite = CurrentTurn? CaroX: CaroO;
-        botModeButton.GetComponent<Image>().sprite = BotMode? CheckBotMode: null;
+        checkButton.GetComponent<Image>().sprite = StaticData.currentTurn ? CaroX: CaroO;
+        botModeButton.GetComponent<Image>().sprite = StaticData.botMode ? CheckBotMode: null;
         checkButton.onClick.AddListener(Check);
         botModeButton.onClick.AddListener(EnableBotMode);
     }
@@ -43,37 +43,37 @@ public class MainMenu : Menu
 
     private void Check()
     {
-        if (CurrentTurn == true)
+        if (StaticData.currentTurn == true)
         {
-            CurrentTurn = false;
+            StaticData.currentTurn = false;
             checkButton.GetComponent<Image>().sprite = CaroO;
         }
         else
         {
-            CurrentTurn = true;
+            StaticData.currentTurn = true;
             checkButton.GetComponent<Image>().sprite = CaroX;
         }
     }
     private void WidthEdit(string arg0)
     {
-        Width = Int32.Parse(widthField.text);
+        StaticData.width = Int32.Parse(widthField.text);
     }
 
     private void HeightEdit(string arg0)
     {
-        Height = Int32.Parse(heightField.text);
+        StaticData.height = Int32.Parse(heightField.text);
     }
 
     private void EnableBotMode()
     {
-        if(BotMode == false)
+        if(StaticData.botMode == false)
         {
-            BotMode = true;
+            StaticData.botMode = true;
             botModeButton.GetComponent<Image>().sprite = CheckBotMode;
         }
         else
         {
-            BotMode = false;
+            StaticData.botMode = false;
             botModeButton.GetComponent<Image>().sprite = null;
         }
     }

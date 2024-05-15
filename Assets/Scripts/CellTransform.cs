@@ -9,7 +9,6 @@ public class CellTransform : MonoBehaviour
 {
     [SerializeField] private Sprite CellX;
     [SerializeField] private Sprite CellO;
-    private BoardGenerate board;
     private Image image;
     private bool isAcitve;
     private int row;
@@ -20,8 +19,7 @@ public class CellTransform : MonoBehaviour
     {
         image = this.GetComponent<Image>();
         this.GetComponent<Button>().onClick.AddListener(Onclick);
-        board = FindAnyObjectByType<BoardGenerate>();
-        isAcitve = board != null;
+        isAcitve = BoardGenerate.Instance != null;
     }
 
     // Update is called once per frame
@@ -43,6 +41,7 @@ public class CellTransform : MonoBehaviour
     }
     private void Onclick()
     {
+        var board = BoardGenerate.Instance;
         if (!board.isActionable() && isAcitve)
         {
             var turn = board.GetTurn();

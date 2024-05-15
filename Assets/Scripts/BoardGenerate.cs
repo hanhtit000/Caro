@@ -10,6 +10,8 @@ using UnityEngine.UI;
 
 public class BoardGenerate : MonoBehaviour
 {
+    private static BoardGenerate instance;
+    public static BoardGenerate Instance { get; private set; }
     [SerializeField] private GameObject prefab;
     [SerializeField] private GameObject gameOverUI;
     [SerializeField] private TextMeshProUGUI winText;
@@ -24,6 +26,16 @@ public class BoardGenerate : MonoBehaviour
     private bool botTurn;
     private List<CellTransform> caroList;
 
+    private void Awake()
+    {
+        if(Instance != null && Instance!= this) {
+            Destroy(this);
+        }
+        else
+        {
+            Instance = this;
+        }
+    }
     // Start is called before the first frame update
     void Start()
     {
